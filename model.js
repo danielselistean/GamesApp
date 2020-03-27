@@ -37,12 +37,13 @@ for (var i = 0; i < arrayOfGames.length; i++){
     //  gameElements += "<h1>"+ arrayOfGames[i].title + "</h1>" +
     //                      "<img src='" + arrayOfGames[i].imageUrl + "' />" +
     //                       "<p>" + arrayOfGames[i].description + "</p>" +
-    //                        "<button class = 'delete-btn' " + " onclick=\"deleteGame('" + arrayOfGames[i]._id + "') \">Delete</button>" ;
+    //                        "<button class = 'delete-btn' " + 
+    //                             " onclick=\"deleteGame('" + arrayOfGames[i]._id + "') \">Delete</button>" ;
 
     gameElements +=`<h1>${arrayOfGames[i].title}</h1>
                     <img src="${arrayOfGames[i].imageUrl}"/> 
                     <p>${arrayOfGames[i].description}</p> 
-                    <button class = "delete-btn" onclick = "deleteGame("${arrayOfGames[i]._id}")" >Delete</button> `;
+                    <button class = "delete-btn" onclick = "deleteGame('${arrayOfGames[i]._id}')" >Delete</button> `;
 }
 
 container1.innerHTML = gameElements;
@@ -64,5 +65,82 @@ fetch(apiURL + "/games/" + gameID,{
 
 }
 
+document.querySelector(".submitBtn").addEventListener("click",function(event){
+        event.preventDefault();
 
-//var deleteBtns = document.getElementsByClassName('.delete-btn')
+        const gameTitle= document.getElementById("gameTitle");
+        const gameDescription= document.getElementById("gameDescription");
+        const gameGenre= document.getElementById("gameGenre");
+        const gamePublisher= document.getElementById("gamePublisher");
+        const gameImageUrl= document.getElementById("gameImageUrl");
+        const gameRelease= document.getElementById("gameRelease");
+
+
+    validateFormElement(gameTitle, "The title is required!");
+    validateFormElement(gameGenre, "The Genre is required!");
+    validateFormElement(gameImageUrl, "The image URL is required!");
+    validateFormElement(gameRelease, "The release date is required!");
+
+validateReleaseTimestampElement(gameRelease, "The release date you provided is not a valid timestamp!");
+
+
+if(gameTitle.value !=="" && gameGenre.value !=="" && gameImageUrl.value !=="" && gameRelease.value !==""){
+    
+const requestParams = {
+    title :"gameTitle",
+    releaseDate: "gameReleas",
+    genre : "gameGener",
+    publisher: "gamePublisher",
+    imageUrl: "gameImageUrl",
+    description : "gameDescription"
+};
+
+createGameRequest(requestParams);
+}
+
+})
+
+
+
+function validateFormElement(inputElement, errorMessage){
+    if(inputElement.value === "") {
+    if(!document.querySelector('[rel="' + inputElement.id + '"]')){
+        buildErrorMessage(imputElement, errorMessage);
+    }
+}else{
+    if(document.querySelector('[rel="' + inputElement.id + '"]')){
+        console.log("the eror is erased!");
+        document.querySelector('[rel="' + inputElement.id + '"]').remove();
+        inputElement.classList.remove("inputError");
+    }
+
+}
+
+}
+function validateReleaseTimestampElement(inputElement, errorMessage){
+    if(isNaN(inputElement.value) && inputElement.value !==""){
+        buildErrorMessage(inputElement, errorMessage);
+    }
+}
+
+function buildErrorMessage(inputEL, errosMsg){
+    inputEL.classList.add('inputError');
+    const errorMsgElement = document.createElement('span');
+    errorMsgElement.setAttribute("rel", inputEL.id);
+    errorMsgElement.classList.add('errosMsg');
+    errorMsgElement.innerHTML = errosMsg ;
+    inputEL.after(errorMsgElement);
+}
+
+
+function createGameRequest(gameObject){
+
+    fetch(apiURL + "/games",{
+        method: "POST",
+        headers: {
+            "Content-Type":"application/x-www-form-urlencoded"
+        },
+        body :JSON.stringify(gameObject)
+    });
+
+}
